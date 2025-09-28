@@ -52,6 +52,10 @@ myCamera::myCamera(float exposure_time, float gain, float framee_rate)
     MV_CC_SetFloatValue(handle_, "ExposureTime", exposure_time);
     MV_CC_SetFloatValue(handle_, "Gain", gain);
     MV_CC_SetFrameRate(handle_, framee_rate);
+
+    if (MV_CC_StartGrabbing(handle_) != MV_OK) {
+        std::cerr << "MV not ok!" << std::endl;
+    }
 }
 
 
@@ -71,15 +75,13 @@ myCamera::~myCamera()
 
 cv::Mat myCamera::read()
 {
-    if (MV_CC_StartGrabbing(handle_) != MV_OK) {
-        std::cerr << "MV not ok!" << std::endl;
-    }
-  
     MV_FRAME_OUT raw;
     unsigned int nMsec = 100;
 
     if (MV_CC_GetImageBuffer(handle_, &raw, nMsec) != MV_OK) {
-        std::cerr << "MV not ok!" << std::endl;
+        std::cerr << "read-1 MV not ok!" << std::endl;
+        cv::Mat ept;
+        return ept;
     }
 
     cv::Mat img = transfer(raw);
@@ -87,7 +89,7 @@ cv::Mat myCamera::read()
     //cv::waitKey(0);
 
     if (MV_CC_FreeImageBuffer(handle_, &raw) != MV_OK) {
-        std::cerr << "MV not ok!" << std::endl;
+        std::cerr << "read-2 MV not ok!" << std::endl;
     }
 
     return img;
